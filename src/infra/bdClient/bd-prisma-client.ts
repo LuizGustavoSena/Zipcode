@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { BdClient, RequestHaveUser, ResponseCreateUser } from "../../data/protocols/bd";
-import { User } from "../../domain/models";
+import { BdClient, ResponseGetZipcode } from "../../data/protocols/bd";
+import { RequestGetZipcode, RequestInsertZipcode } from "../../domain/models";
 
 export class BdPrismaClient implements BdClient {
     prisma: PrismaClient;
@@ -9,30 +9,35 @@ export class BdPrismaClient implements BdClient {
         this.prisma = new PrismaClient();
     }
 
-    async createUser(params: User): Promise<ResponseCreateUser> {
-        const { email, password, username } = params;
-
-        const createUser = await this.prisma.users.create({
-            data: {
-                email,
-                password,
-                username
+    async createZipcode(params: RequestInsertZipcode): Promise<void> {
+        const haveZipcodes = await this.prisma.zipcodes.findFirst({
+            where: {
+                email: params.email
             }
         });
 
-        return createUser;
+        if (haveZipcodes) {
+            haveZipcodes.zipcodes.push(params.zipcode);
+
+            this.prisma.zipcodes.update({
+                where: { email: params.email },
+                data: {
+                    zipcodes: haveZipcodes.zipcodes
+                }
+            });
+
+            return;
+        }
+
+        this.prisma.zipcodes.create({
+            data: {
+                email: params.email,
+                zipcodes: [params.zipcode]
+            }
+        });
     }
 
-    async haveUser(params: RequestHaveUser): Promise<boolean> {
-        const { email, password } = params;
-
-        const results = await this.prisma.users.findFirst({
-            where: {
-                email,
-                password
-            }
-        });
-
-        return !!results;
+    getZipcode(params: RequestGetZipcode): Promise<ResponseGetZipcode> {
+        throw new Error("Method not implemented.");
     }
 }
