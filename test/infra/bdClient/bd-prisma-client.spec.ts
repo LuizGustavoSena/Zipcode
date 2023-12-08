@@ -28,9 +28,25 @@ describe('BbPrismaClient', () => {
             where: { email: request.email }
         });
 
-        console.log({ zipcodes })
-
         expect(zipcodes.zipcodes.length).toBe(1);
         expect(zipcodes.zipcodes[0]).toBe(request.zipcode);
+    });
+
+    it('Should create another zipcode', async () => {
+        const { sut } = makeSut();
+
+        const firstRequest = makeRequestCreateZipcode();
+        const secondRequest = makeRequestCreateZipcode({ email: firstRequest.email });
+
+        await sut.createZipcode(firstRequest);
+        await sut.createZipcode(secondRequest);
+
+        const zipcodes = await sut.prisma.zipcodes.findFirst({
+            where: { email: firstRequest.email }
+        });
+
+        expect(zipcodes.zipcodes.length).toBe(2);
+        expect(zipcodes.zipcodes[0]).toBe(firstRequest.zipcode);
+        expect(zipcodes.zipcodes[1]).toBe(secondRequest.zipcode);
     });
 });
