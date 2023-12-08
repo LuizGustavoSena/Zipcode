@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { RequestInsertZipcode } from "../../../src/domain/models";
 
-export const makeRequestCreateZipcode = (): RequestInsertZipcode => {
+export const makeRequestCreateZipcode = (params?: { email?: string, zipcode?: string }): RequestInsertZipcode => {
     return {
-        email: faker.internet.email(),
-        zipcode: faker.word.words()
+        email: params?.email ? params.email : faker.internet.email(),
+        zipcode: params?.zipcode ? params.zipcode : faker.word.words()
     }
 }
