@@ -19,7 +19,7 @@ export class BdPrismaClient implements BdClient {
         if (haveZipcodes) {
             haveZipcodes.zipcodes.push(params.zipcode);
 
-            this.prisma.zipcodes.update({
+            await this.prisma.zipcodes.update({
                 where: { email: params.email },
                 data: {
                     zipcodes: haveZipcodes.zipcodes
@@ -29,7 +29,7 @@ export class BdPrismaClient implements BdClient {
             return;
         }
 
-        this.prisma.zipcodes.create({
+        await this.prisma.zipcodes.create({
             data: {
                 email: params.email,
                 zipcodes: [params.zipcode]
