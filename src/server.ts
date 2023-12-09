@@ -1,17 +1,14 @@
 require('dotenv/config');
 import Fastify from 'fastify';
-import * as AccountControler from './main/controllers/remote-account';
-import * as ValidateControler from './main/controllers/remote-validate-token';
+import * as ZipcodeControler from './main/controllers/remote-zipcode';
 
 const fastify = Fastify({
     logger: true
 });
 
-fastify.post('/create_account', AccountControler.createAccount);
+fastify.post('/create_zipcode', ZipcodeControler.createZipcode);
 
-fastify.post('/login_account', AccountControler.loginAccount);
-
-fastify.get('/validate_token', ValidateControler.validateToken);
+fastify.get('/zipcode', ZipcodeControler.getZipcodes);
 
 fastify.listen({
     port: Number(process.env.PORT) || 3000,
