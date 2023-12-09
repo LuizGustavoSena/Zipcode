@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { BdClient, ResponseGetZipcode } from "../../data/protocols/bd";
+import { BdClient } from "../../data/protocols/bd";
 import { RequestGetZipcode, RequestInsertZipcode } from "../../domain/models";
 
 export class BdPrismaClient implements BdClient {
@@ -10,19 +10,15 @@ export class BdPrismaClient implements BdClient {
     }
 
     async createZipcode(params: RequestInsertZipcode): Promise<void> {
-        const haveZipcodes = await this.prisma.zipcodes.findFirst({
-            where: {
-                email: params.email
-            }
-        });
+        const haveZipcodes = await this.getZipcode({ email: params.email });
 
         if (haveZipcodes) {
-            haveZipcodes.zipcodes.push(params.zipcode);
+            haveZipcodes.push(params.zipcode);
 
             await this.prisma.zipcodes.update({
                 where: { email: params.email },
                 data: {
-                    zipcodes: haveZipcodes.zipcodes
+                    zipcodes: haveZipcodes
                 }
             });
 
@@ -37,7 +33,14 @@ export class BdPrismaClient implements BdClient {
         });
     }
 
-    getZipcode(params: RequestGetZipcode): Promise<ResponseGetZipcode> {
-        throw new Error("Method not implemented.");
+    async getZipcode(params: RequestGetZipcode): Promise<string[]> {
+        const zipcodes = await this.prisma.zipcodes.findFirst({
+            where: { email: params.email }
+        });
+
+        if (!zipcodes)
+            return null;
+
+        return zipcodes.zipcodes;
     }
 }
