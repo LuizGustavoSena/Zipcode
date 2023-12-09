@@ -2,9 +2,5 @@ import { RequestGetZipcode, RequestInsertZipcode } from "../../../domain/models"
 
 export interface BdClient {
     createZipcode(params: RequestInsertZipcode): Promise<void>;
-    getZipcode(params: RequestGetZipcode): Promise<ResponseGetZipcode>
+    getZipcode(params: RequestGetZipcode): Promise<string[]>
 };
-
-export type ResponseGetZipcode = {
-    zipcodes: string[];
-}
