@@ -1,4 +1,4 @@
-import { BdClient, ResponseGetZipcode } from "../../../src/data/protocols/bd";
+import { BdClient } from "../../../src/data/protocols/bd";
 import { RequestGetZipcode, RequestInsertZipcode } from "../../../src/domain/models";
 
 export class BdClientSpy implements BdClient {
@@ -10,7 +10,10 @@ export class BdClientSpy implements BdClient {
         this.zipcodes.push(params.zipcode);
     }
 
-    getZipcode(params: RequestGetZipcode): Promise<ResponseGetZipcode> {
-        throw new Error("Method not implemented.");
+    async getZipcode(params: RequestGetZipcode): Promise<string[]> {
+        if (params.email !== this.email)
+            return [];
+
+        return this.zipcodes;
     }
 }
