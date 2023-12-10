@@ -24,14 +24,14 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
         const promises = zipCodes?.map(el => {
             return this.httpClient.request<GraphQlGetTracking>({
                 method: MethodHttp.POST,
-                url: process.env.BASE_URL,
+                url: String(process.env.BASE_URL),
                 body: this.makeQueryGraphQl(el)
             });
         });
 
         const response = await Promise.all(promises);
 
-        if (response.find(el => el.statusCode !== HttpStatusCode.Ok))
+        if (response.find(el => el.statusCode !== HttpStatusCode.Ok || !el.body?.data))
             throw new ErrorGetTracking();
 
         return this.formatResponse(response);
@@ -41,6 +41,9 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
         const zipcodes: ZipcodesParams[] = [];
 
         data.forEach(el => {
+            if (!el || !el.body)
+                return;
+
             const formatData = el.body.data.result;
 
             const routes = formatData.trackingEvents.map(subEl => {
