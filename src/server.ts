@@ -10,7 +10,7 @@ const fastify = Fastify({
 
 fastify.register(cors, {
     origin: (origin, cb) => {
-        if (new URL(origin).hostname === process.env.URL_WEB_SITE) {
+        if (process.env.ENVIRONMENT === 'development' || new URL(origin).hostname === process.env.URL_WEB_SITE) {
             cb(null, true);
             return;
         };
