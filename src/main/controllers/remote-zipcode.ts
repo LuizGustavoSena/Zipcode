@@ -38,7 +38,7 @@ export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
         });
 
         rep.statusCode = zipcodes.length > 0 ? 200 : 204;
-        rep.send(zipcodes);
+        rep.send({ zipcodes });
     } catch (error: any) {
         rep.statusCode = error instanceof ErrorGetTracking ?
             400 : 500;
