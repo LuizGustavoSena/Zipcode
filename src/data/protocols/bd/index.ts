@@ -1,6 +1,6 @@
-import { RequestGetZipcode, RequestInsertZipcode } from "../../../domain/models";
+import { GetzipcodesParsms, RequestGetZipcode, RequestInsertZipcode } from "../../../domain/models";
 
 export interface BdClient {
     createZipcode(params: RequestInsertZipcode): Promise<void>;
-    getZipcode(params: RequestGetZipcode): Promise<string[]>
+    getZipcode(params: RequestGetZipcode): Promise<GetzipcodesParsms[]>
 };

@@ -3,7 +3,7 @@ import { RequestGetZipcode, RequestInsertZipcode, ZipcodesParams } from "../../d
 import { GraphQlGetTracking } from "../../domain/models/get-tracking";
 import { GetZipcode, InsertZipcode } from "../../domain/use-cases";
 import { BdClient } from "../protocols/bd";
-import { HttpClient, HttpResponse, HttpStatusCode, MethodHttp } from "../protocols/http";
+import { HttpClient, HttpStatusCode, MethodHttp } from "../protocols/http";
 
 export class RemoteZipcode implements InsertZipcode, GetZipcode {
     constructor(
@@ -18,14 +18,14 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
     async getZipcode(params: RequestGetZipcode): Promise<ZipcodesParams[]> {
         const zipCodes = await this.bdClient.getZipcode(params);
 
-        if (!zipCodes || zipCodes.length === 0)
+        if (!zipCodes)
             return [];
 
-        const promises = zipCodes?.map(el => {
+        const promises = zipCodes.map(el => {
             return this.httpClient.request<GraphQlGetTracking>({
                 method: MethodHttp.POST,
                 url: String(process.env.BASE_URL),
-                body: this.makeQueryGraphQl(el)
+                body: this.makeQueryGraphQl(el.zipcode)
             });
         });
 
@@ -34,19 +34,13 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
         if (response.find(el => el.statusCode !== HttpStatusCode.Ok || !el.body?.data))
             throw new ErrorGetTracking();
 
-        return this.formatResponse(response);
-    };
-
-    private formatResponse(data: HttpResponse<GraphQlGetTracking>[]): ZipcodesParams[] {
-        const zipcodes: ZipcodesParams[] = [];
-
-        data.forEach(el => {
-            if (!el || !el.body)
+        const trackings = response.map(el => {
+            if (!el.body || !el.body.data || !el.body.data.result)
                 return;
 
-            const formatData = el.body.data.result;
+            const data = el.body.data.result;
 
-            const routes = formatData.trackingEvents.map(subEl => {
+            const routes = data.trackingEvents.map(subEl => {
                 return {
                     start: this.removeUnnecessaryText(subEl.to),
                     end: this.removeUnnecessaryText(subEl.from),
@@ -55,15 +49,16 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
                 }
             });
 
-            zipcodes.push({
-                code: formatData.trackingEvents[0].trackingCode,
-                status: formatData.lastStatus,
+            return {
+                name: zipCodes.find(el => el.zipcode === data.trackingEvents[0].trackingCode).name,
+                code: data.trackingEvents[0].trackingCode,
+                status: data.lastStatus,
                 routes
-            })
-        })
+            }
+        });
 
-        return zipcodes;
-    }
+        return trackings;
+    };
 
     private makeQueryGraphQl(code: string) {
         return {

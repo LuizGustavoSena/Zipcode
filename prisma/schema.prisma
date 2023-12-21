@@ -8,7 +8,8 @@ datasource db {
 }
 
 model Zipcodes {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  email    String   @unique
-  zipcodes String[]
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  email   String @unique
+  name    String
+  zipcode String
 }

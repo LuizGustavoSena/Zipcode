@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { BdClient } from "../../data/protocols/bd";
-import { RequestGetZipcode, RequestInsertZipcode } from "../../domain/models";
+import { GetzipcodesParsms, RequestGetZipcode, RequestInsertZipcode } from "../../domain/models";
 
 export class BdPrismaClient implements BdClient {
     prisma: PrismaClient;
@@ -10,37 +10,23 @@ export class BdPrismaClient implements BdClient {
     }
 
     async createZipcode(params: RequestInsertZipcode): Promise<void> {
-        const haveZipcodes = await this.getZipcode({ email: params.email });
-
-        if (haveZipcodes) {
-            haveZipcodes.push(params.zipcode);
-
-            await this.prisma.zipcodes.update({
-                where: { email: params.email },
-                data: {
-                    zipcodes: haveZipcodes
-                }
-            });
-
-            return;
-        }
-
         await this.prisma.zipcodes.create({
             data: {
                 email: params.email,
-                zipcodes: [params.zipcode]
+                zipcode: params.zipcode,
+                name: params.name
             }
         });
     }
 
-    async getZipcode(params: RequestGetZipcode): Promise<string[]> {
-        const zipcodes = await this.prisma.zipcodes.findFirst({
+    async getZipcode(params: RequestGetZipcode): Promise<GetzipcodesParsms[]> {
+        const zipcodes = await this.prisma.zipcodes.findMany({
             where: { email: params.email }
         });
 
-        if (!zipcodes)
+        if (!zipcodes || zipcodes.length === 0)
             return null;
 
-        return zipcodes.zipcodes;
+        return zipcodes;
     }
 }

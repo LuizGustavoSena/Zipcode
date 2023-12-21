@@ -11,12 +11,13 @@ const httpClient = makeAxiosHttpClient();
 export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
     const authenticated = await authentication(req, rep);
 
-    const { zipcode } = req.body as { zipcode: string };
+    const { zipcode, name } = req.body as { zipcode: string; name: string };
 
     try {
         await remoteZipcode.insertZipcode({
             email: authenticated.email,
-            zipcode
+            zipcode,
+            name
         });
 
         rep.statusCode = 201;
