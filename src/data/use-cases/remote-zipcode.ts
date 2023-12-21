@@ -48,8 +48,8 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
 
             const routes = formatData.trackingEvents.map(subEl => {
                 return {
-                    start: subEl.to,
-                    end: subEl.from,
+                    start: this.removeUnnecessaryText(subEl.to),
+                    end: this.removeUnnecessaryText(subEl.from),
                     date: subEl.createdAt,
                     description: subEl.originalTitle
                 }
@@ -88,4 +88,23 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
             }
         };
     };
+
+    private removeUnnecessaryText(message: string): string {
+        if (!message)
+            return null;
+
+        const wordsRemove = [
+            'Unidade de Distribuição - ',
+            'Unidade de Tratamento - ',
+            'Unidade de Logística Integrada - ',
+        ];
+
+        let formatMessage = message;
+
+        wordsRemove.forEach(el => {
+            formatMessage = formatMessage.replace(el, '');
+        });
+
+        return formatMessage;
+    }
 }
