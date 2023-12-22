@@ -1,5 +1,6 @@
 require('dotenv/config');
 import { FastifyReply, FastifyRequest } from "fastify";
+import { ZodError, z } from "zod";
 import { HttpStatusCode, MethodHttp } from "../../data/protocols/http";
 import { ErrorGetTracking } from "../../domain/error/error-get-tracking";
 import { makeAxiosHttpClient } from "../factories/http/axios-http-client";
@@ -8,12 +9,22 @@ import { makeRemoteZipcode } from "../factories/use-cases/remote-zipcode";
 const remoteZipcode = makeRemoteZipcode();
 const httpClient = makeAxiosHttpClient();
 
+const validationCreateZipcode = z.object({
+    zipcode: z.string(),
+    name: z.string()
+});
+
 export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
     const authenticated = await authentication(req, rep);
 
     const { zipcode, name } = req.body as { zipcode: string; name: string };
 
     try {
+        validationCreateZipcode.parse({
+            zipcode,
+            name
+        });
+
         await remoteZipcode.insertZipcode({
             email: authenticated.email,
             zipcode,
@@ -25,8 +36,8 @@ export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
     } catch (error: any) {
         rep.log.info(error.message);
 
-        rep.statusCode = 500;
-        rep.send('Erro inesperado');
+        rep.statusCode = error instanceof ZodError ? 415 : 500;
+        rep.send(error instanceof ZodError ? error.message : 'Erro inesperado');
     }
 };
 
