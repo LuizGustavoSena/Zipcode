@@ -2,6 +2,7 @@ require('dotenv/config');
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError, z } from "zod";
 import { HttpStatusCode, MethodHttp } from "../../data/protocols/http";
+import { DeleteZipcodeError } from "../../domain/error/delete-zipcode-error";
 import { ErrorGetTracking } from "../../domain/error/error-get-tracking";
 import { makeAxiosHttpClient } from "../factories/http/axios-http-client";
 import { makeRemoteZipcode } from "../factories/use-cases/remote-zipcode";
@@ -40,6 +41,33 @@ export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
         rep.send(error instanceof ZodError ? error.message : 'Erro inesperado');
     }
 };
+
+export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
+    const authenticated = await authentication(req, rep);
+
+    const { zipcode } = req.params as { zipcode: string };
+
+    try {
+        await remoteZipcode.deleteZipcode({
+            email: authenticated.email,
+            zipcode
+        });
+
+        rep.statusCode = 200;
+        rep.send();
+    } catch (error: any) {
+        rep.statusCode = error instanceof DeleteZipcodeError ?
+            404 : 500;
+
+        const msg = error instanceof DeleteZipcodeError ?
+            error.message : 'Erro inesperado';
+
+        if (!(error instanceof DeleteZipcodeError))
+            rep.log.info(error.message);
+
+        rep.send(msg);
+    }
+}
 
 export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
     const authenticated = await authentication(req, rep);

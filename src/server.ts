@@ -23,6 +23,8 @@ fastify.post('/create_zipcode', ZipcodeControler.createZipcode);
 
 fastify.get('/zipcode', ZipcodeControler.getZipcodes);
 
+fastify.delete('/zipcode/:zipcode', ZipcodeControler.deleteZipcode);
+
 fastify.get('/', (_, rep) => {
     console.log('Ping received');
 

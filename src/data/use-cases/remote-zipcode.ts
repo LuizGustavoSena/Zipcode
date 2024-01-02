@@ -1,11 +1,14 @@
+import { DeleteZipcodeError } from "../../domain/error/delete-zipcode-error";
 import { ErrorGetTracking } from "../../domain/error/error-get-tracking";
 import { RequestGetZipcode, RequestInsertZipcode, ZipcodesParams } from "../../domain/models";
+import { ModelDeleteZipcode } from "../../domain/models/delete-zipcode";
 import { GraphQlGetTracking } from "../../domain/models/get-tracking";
 import { GetZipcode, InsertZipcode } from "../../domain/use-cases";
+import { DeleteZipcode } from "../../domain/use-cases/delete-zipcode";
 import { BdClient } from "../protocols/bd";
 import { HttpClient, HttpStatusCode, MethodHttp } from "../protocols/http";
 
-export class RemoteZipcode implements InsertZipcode, GetZipcode {
+export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
     constructor(
         private bdClient: BdClient,
         private httpClient: HttpClient
@@ -13,6 +16,13 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode {
 
     async insertZipcode(params: RequestInsertZipcode): Promise<void> {
         this.bdClient.createZipcode(params);
+    };
+
+    async deleteZipcode(params: ModelDeleteZipcode): Promise<void> {
+        const response = await this.bdClient.deleteZipcode(params);
+
+        if (response === null)
+            throw new DeleteZipcodeError();
     };
 
     async getZipcode(params: RequestGetZipcode): Promise<ZipcodesParams[]> {
