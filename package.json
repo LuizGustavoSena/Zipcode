@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "tsx src/server.ts",
+    "build": "tsc",
     "test": "vitest"
   },
   "dependencies": {
