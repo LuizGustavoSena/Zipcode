@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "tsx src/server.ts",
+    "dev": "cross-env NODE_ENV=test node --env-file=.env.test --import tsx src/server.ts",
     "build": "tsc",
     "test": "vitest"
   },
@@ -14,6 +14,7 @@
     "axios": "1.4.0",
     "dotenv": "16.3.1",
     "fastify": "4.24.3",
+    "moment": "2.30.1",
     "prisma": "5.5.2",
     "zod": "3.22.4"
   },
@@ -22,6 +23,7 @@
     "@types/axios": "0.14.0",
     "@types/jwt-simple": "0.5.36",
     "@types/node": "20.8.9",
+    "cross-env": "10.1.0",
     "eslint": "8.52.0",
     "ts-node": "10.9.1",
     "tsx": "3.14.0",
