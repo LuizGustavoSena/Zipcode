@@ -28,9 +28,7 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
     };
 
     async getZipcode(params: RequestGetZipcode): Promise<ZipcodesParams[]> {
-        const zipCodes = [{ zipcode: 'NN085351155BR', name: 'Teclado' }]; //await this.bdClient.getZipcode(params);
-
-        console.log({ zipCodes })
+        const zipCodes = await this.bdClient.getZipcode(params);
 
         if (!zipCodes)
             return [];
@@ -48,22 +46,19 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
 
         const response = await Promise.all(promises);
 
-        console.log({ response })
-
-
         if (response.find(el => el.statusCode !== HttpStatusCode.Ok || !el.body))
             throw new ErrorGetTracking();
 
         const trackings = response.map(el => {
-            if (!el.body || !el.body.correios_object || el.body.correios_object.eventos.length === 0)
+            if (!el.body || !el.body.correios_object)
                 return;
 
             const routes = el.body.correios_object.eventos.map(events => {
                 return {
-                    start: events.unidade.endereco.cidade,
-                    end: events.unidadeDestino.endereco.cidade,
-                    date: moment(events.dtHrCriado.date).format('dd/MM/yyyy:HH:mm'),
-                    description: events.descricao
+                    start: events?.unidade?.endereco?.cidade,
+                    end: events?.unidadeDestino?.endereco?.cidade,
+                    date: moment(events?.dtHrCriado?.date).format('DD/MM/YYYY HH:mm'),
+                    description: events?.descricao
                 }
             });
 
