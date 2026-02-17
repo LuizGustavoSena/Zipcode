@@ -1,7 +1,7 @@
-require('dotenv/config');
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import https from 'https';
+import { env } from './infra/zod/env';
 import * as ZipcodeControler from './main/controllers/remote-zipcode';
 
 const fastify = Fastify({
@@ -10,7 +10,7 @@ const fastify = Fastify({
 
 fastify.register(cors, {
     origin: (origin, cb) => {
-        if (process.env.ENVIRONMENT === 'development' || new URL(origin).hostname === process.env.URL_WEB_SITE) {
+        if (env.NODE_ENV !== 'prd' || new URL(origin).hostname === env.URL_WEB_SITE) {
             cb(null, true);
             return;
         };
@@ -32,12 +32,12 @@ fastify.get('/', (_, rep) => {
 });
 
 setInterval(() => {
-    if (process.env.ENVIRONMENT === 'production')
-        https.get(process.env.URL_API_ZIPCODE);
-}, Number(process.env.MINUTES_REQUEST) * 60 * 1000);
+    if (env.NODE_ENV === 'prd')
+        https.get(env.URL_API_ZIPCODE);
+}, 14 * 60 * 1000);
 
 fastify.listen({
-    port: Number(process.env.PORT) || 3000,
+    port: env.PORT,
     host: '0.0.0.0',
 }, function (err, address) {
     if (err) {
