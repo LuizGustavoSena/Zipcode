@@ -1,6 +1,8 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { HttpClient, MethodHttp } from "../../data/protocols/http";
+import { HttpClient, HttpStatusCode, MethodHttp } from "../../data/protocols/http";
+import { AuthenticatorError } from "../../domain/error/authenticator-error";
+import { InternalServerError } from "../../domain/error/internal-server-error";
 import { AuthApiResponse } from "../../domain/models/api-authenticate";
 import { env } from "../../infra/zod/env";
 import { makeAxiosHttpClient } from "../factories/http/axios-http-client";
@@ -20,7 +22,7 @@ export const authPlugin: FastifyPluginAsync = async (fastify) => {
     fastify.decorate("authenticate", async (request: FastifyRequest, reply: FastifyReply) => {
         const token = extractBearerToken(request.headers.authorization);
         if (!token) {
-            return reply.code(401).send({ message: "Missing or invalid Authorization header" });
+            throw new AuthenticatorError();
         }
 
         try {
@@ -35,16 +37,19 @@ export const authPlugin: FastifyPluginAsync = async (fastify) => {
 
             if (!res?.body?.id || !res?.body?.email) {
                 fastify.log.warn({ res }, "Auth API returned unexpected payload");
-                return reply.code(401).send({ message: "Invalid auth payload" });
+                throw new AuthenticatorError();
             }
 
             request.user = {
                 id: String(res.body.id),
                 email: String(res.body.email),
             };
-        } catch (err) {
+        } catch (err: any) {
+            if (err.statusCode === HttpStatusCode.Unauthorized)
+                throw new AuthenticatorError();
+
             fastify.log.error({ err }, "Auth API request failed");
-            return reply.code(502).send({ message: "Auth service unavailable" });
+            throw new InternalServerError();
         }
     });
 };
