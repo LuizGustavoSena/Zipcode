@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { HttpClient, HttpStatusCode, MethodHttp } from "../../data/protocols/http";
+import { HttpStatusCode, MethodHttp } from "../../data/protocols/http";
 import { AuthenticatorError } from "../../domain/error/authenticator-error";
 import { InternalServerError } from "../../domain/error/internal-server-error";
 import { AuthApiResponse } from "../../domain/models/api-authenticate";
@@ -14,7 +14,7 @@ function extractBearerToken(authorization?: string): string | null {
     return token;
 }
 
-const httpClient = makeAxiosHttpClient() as HttpClient;
+const httpClient = makeAxiosHttpClient();
 
 export const authPlugin: FastifyPluginAsync = async (fastify) => {
     fastify.decorateRequest("user", null);
@@ -27,7 +27,7 @@ export const authPlugin: FastifyPluginAsync = async (fastify) => {
 
         try {
             const res = await httpClient.request<AuthApiResponse>({
-                url: `${env.AUTH_URL}/validate`,
+                url: env.AUTH_URL,
                 method: MethodHttp.GET,
                 headers: {
                     Authorization: `Bearer ${token}`,
