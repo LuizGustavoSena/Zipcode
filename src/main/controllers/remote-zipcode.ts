@@ -1,14 +1,11 @@
 require('dotenv/config');
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError, z } from "zod";
-import { HttpStatusCode, MethodHttp } from "../../data/protocols/http";
 import { DeleteZipcodeError } from "../../domain/error/delete-zipcode-error";
 import { ErrorGetTracking } from "../../domain/error/error-get-tracking";
-import { makeAxiosHttpClient } from "../factories/http/axios-http-client";
 import { makeRemoteZipcode } from "../factories/use-cases/remote-zipcode";
 
 const remoteZipcode = makeRemoteZipcode();
-const httpClient = makeAxiosHttpClient();
 
 const validationCreateZipcode = z.object({
     zipcode: z.string(),
@@ -16,8 +13,6 @@ const validationCreateZipcode = z.object({
 });
 
 export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
-    const authenticated = await authentication(req, rep);
-
     const { zipcode, name } = req.body as { zipcode: string; name: string };
 
     try {
@@ -27,7 +22,7 @@ export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
         });
 
         await remoteZipcode.insertZipcode({
-            email: authenticated.email,
+            email: req.user.email,
             zipcode,
             name
         });
@@ -43,13 +38,11 @@ export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
 };
 
 export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
-    const authenticated = await authentication(req, rep);
-
     const { zipcode } = req.params as { zipcode: string };
 
     try {
         await remoteZipcode.deleteZipcode({
-            email: authenticated.email,
+            email: req.user.email,
             zipcode
         });
 
@@ -70,11 +63,9 @@ export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
 }
 
 export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
-    const authenticated = await authentication(req, rep);
-
     try {
         const zipcodes = await remoteZipcode.getZipcode({
-            email: authenticated.email,
+            email: req.user.email,
         });
 
         rep.statusCode = zipcodes.length > 0 ? 200 : 204;
@@ -92,22 +83,3 @@ export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
         rep.send(msg);
     }
 };
-
-const authentication = async (req: FastifyRequest, rep: FastifyReply) => {
-    const response = await httpClient.request({
-        method: MethodHttp.GET,
-        url: String(process.env.URL_AUTHENTICATION),
-        headers: {
-            Authorization: req.headers.authorization
-        }
-    });
-
-    if (response.statusCode === HttpStatusCode.Unauthorized) {
-        rep.statusCode = 401;
-        rep.send();
-
-        return;
-    }
-
-    return response.body;
-}
