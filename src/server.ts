@@ -1,8 +1,10 @@
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import https from 'https';
+import { NotAllowedError } from './domain/error/not-allowed-error';
 import { env } from './infra/zod/env';
 import * as ZipcodeControler from './main/controllers/remote-zipcode';
+import { authPlugin } from './main/plugins/auth';
 
 const fastify = Fastify({
     logger: true
@@ -15,33 +17,34 @@ fastify.register(cors, {
             return;
         };
 
-        cb(new Error("Not allowed"), false);
+        cb(new NotAllowedError(), false);
     }
 });
 
-fastify.post('/create_zipcode', ZipcodeControler.createZipcode);
+fastify.register(authPlugin);
 
-fastify.get('/zipcode', ZipcodeControler.getZipcodes);
+fastify.register(async (protectedRoutes) => {
+    protectedRoutes.addHook("preHandler", protectedRoutes.authenticate);
 
-fastify.delete('/zipcode/:zipcode', ZipcodeControler.deleteZipcode);
+    protectedRoutes.post('/create_zipcode', ZipcodeControler.createZipcode);
+    protectedRoutes.get('/zipcode', ZipcodeControler.getZipcodes);
+    protectedRoutes.delete('/zipcode/:zipcode', ZipcodeControler.deleteZipcode);
+}, { prefix: "/v1" });
 
-fastify.get('/', (_, rep) => {
-    console.log('Ping received');
+fastify.get('/', (_, rep) => { rep.send() });
 
-    rep.send();
-});
-
-setInterval(() => {
-    if (env.NODE_ENV === 'prd')
+if (env.NODE_ENV === 'prd') {
+    setInterval(() => {
         https.get(env.URL_API_ZIPCODE);
-}, 14 * 60 * 1000);
+    }, 14 * 60 * 1000);
+}
 
 fastify.listen({
     port: env.PORT,
     host: '0.0.0.0',
-}, function (err, address) {
-    if (err) {
-        fastify.log.error(err)
-        process.exit(1)
-    }
+}, function (err) {
+    if (!err) return;
+
+    fastify.log.error(err);
+    process.exit(1);
 })
