@@ -1,6 +1,9 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
+import { HttpClient, MethodHttp } from "../../data/protocols/http";
 import { AuthApiResponse } from "../../domain/models/api-authenticate";
+import { env } from "../../infra/zod/env";
+import { makeAxiosHttpClient } from "../factories/http/axios-http-client";
 
 function extractBearerToken(authorization?: string): string | null {
     if (!authorization) return null;
@@ -8,6 +11,8 @@ function extractBearerToken(authorization?: string): string | null {
     if (type?.toLowerCase() !== "bearer" || !token) return null;
     return token;
 }
+
+const httpClient = makeAxiosHttpClient() as HttpClient;
 
 export const authPlugin: FastifyPluginAsync = async (fastify) => {
     fastify.decorateRequest("user", null);
@@ -19,28 +24,23 @@ export const authPlugin: FastifyPluginAsync = async (fastify) => {
         }
 
         try {
-            const res = await fetch(`${process.env.AUTH_URL}/validate`, {
-                method: "GET",
+            const res = await httpClient.request<AuthApiResponse>({
+                url: `${env.AUTH_URL}/validate`,
+                method: MethodHttp.GET,
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
 
-            if (!res.ok) {
-                return reply.code(401).send({ message: "Invalid token" });
-            }
-
-            const data = (await res.json()) as AuthApiResponse;
-
-            if (!data?.id || !data?.email) {
-                fastify.log.warn({ data }, "Auth API returned unexpected payload");
+            if (!res?.body?.id || !res?.body?.email) {
+                fastify.log.warn({ res }, "Auth API returned unexpected payload");
                 return reply.code(401).send({ message: "Invalid auth payload" });
             }
 
             request.user = {
-                id: String(data.id),
-                email: String(data.email),
+                id: String(res.body.id),
+                email: String(res.body.email),
             };
         } catch (err) {
             fastify.log.error({ err }, "Auth API request failed");
