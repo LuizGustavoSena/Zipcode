@@ -1,8 +1,10 @@
 import { RemoteZipcode } from "../../../data/use-cases/remote-zipcode";
-import { makeBdPrimaClient } from "../bdClient/bd-prisma-client";
+import { makeBdKnexClient } from "../bdClient/bd-prisma-client";
+import { makeUuidGuid } from "../guid/uuid-guid";
 import { makeAxiosHttpClient } from "../http/axios-http-client";
 
 export const makeRemoteZipcode = (): RemoteZipcode => new RemoteZipcode(
-    makeBdPrimaClient(),
-    makeAxiosHttpClient()
+    makeBdKnexClient(),
+    makeAxiosHttpClient(),
+    makeUuidGuid()
 )

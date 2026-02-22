@@ -8,16 +8,21 @@ import { GetZipcode, InsertZipcode } from "../../domain/use-cases";
 import { DeleteZipcode } from "../../domain/use-cases/delete-zipcode";
 import { env } from "../../infra/zod/env";
 import { BdClient } from "../protocols/bd";
+import { GuidClient } from "../protocols/guid";
 import { HttpClient, HttpStatusCode, MethodHttp } from "../protocols/http";
 
 export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
     constructor(
         private bdClient: BdClient,
-        private httpClient: HttpClient
+        private httpClient: HttpClient,
+        private guid: GuidClient
     ) { }
 
     insertZipcode = async (params: RequestInsertZipcode): Promise<void> => {
-        this.bdClient.createZipcode(params);
+        this.bdClient.createZipcode({
+            ...params,
+            id: this.guid.generate()
+        });
     };
 
     deleteZipcode = async (params: ModelDeleteZipcode): Promise<void> => {
@@ -36,7 +41,7 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
         const promises = zipCodes.map(el => {
             return this.httpClient.request<TrackProps>({
                 method: MethodHttp.GET,
-                url: `${env.BASE_URL}&tracking_code=${el.zipcode}`,
+                url: `${env.BASE_URL}&tracking_code=${el.code}`,
                 headers: {
                     'x-rapidapi-host': env.XRAPIDAPIHOST,
                     'x-rapidapi-key': env.XRAPIDAPIKEY
@@ -63,7 +68,7 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
             });
 
             return {
-                name: zipCodes.find(subEl => subEl.zipcode === el.body.tracking_code).name,
+                name: zipCodes.find(subEl => subEl.code === el.body.tracking_code).name,
                 code: el.body.tracking_code,
                 routes
             }
