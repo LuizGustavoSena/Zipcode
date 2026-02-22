@@ -1,5 +1,5 @@
-import { RequestGetZipcode, ZipcodesParams } from "../models";
+import { GetzipcodesParsms, RequestGetZipcode } from "../models";
 
 export interface GetZipcode {
-    getZipcode(params: RequestGetZipcode): Promise<ZipcodesParams[]>;
+    getZipcode(params: RequestGetZipcode): Promise<GetzipcodesParsms[]>;
 }

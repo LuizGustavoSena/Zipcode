@@ -30,7 +30,8 @@ fastify.register(async (protectedRoutes) => {
 
     protectedRoutes.post('/create_zipcode', ZipcodeControler.createZipcode);
     protectedRoutes.get('/zipcode', ZipcodeControler.getZipcodes);
-    protectedRoutes.delete('/zipcode/:zipcode', ZipcodeControler.deleteZipcode);
+    protectedRoutes.delete('/zipcode/:code', ZipcodeControler.deleteZipcode);
+    protectedRoutes.get('/zipcode/:code', ZipcodeControler.getTrackingZipcode);
 }, { prefix: "/v1" });
 
 fastify.get('/', (_, rep) => { rep.send() });

@@ -4,7 +4,6 @@ export type RequestGetZipcode = {
 
 export type ZipcodesParams = {
     code: string;
-    name: string;
     routes?: RouteParams[];
 }
 

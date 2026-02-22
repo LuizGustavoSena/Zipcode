@@ -47,3 +47,12 @@ export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
     rep.statusCode = zipcodes.length > 0 ? 200 : 204;
     rep.send({ zipcodes });
 };
+
+export const getTrackingZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
+    const { code } = req.params as { code: string };
+
+    const trackingRoute = await remoteZipcode.getTrackingByZipcode(code);
+
+    rep.statusCode = 200;
+    rep.send({ trackingRoute });
+}; 
