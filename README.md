@@ -4,7 +4,8 @@
 <img height="400" src="assets/zipcode.png" />
 </div>
 </br>
-It's a simple API created to find tracking your package skiping CAPTCHA 
+API for registering and managing tracking codes, with detailed route and shipment status visualization skiping CAPTCHA.
+Automated integration with tracking services, focused on efficiency, organization, and simplified data retrieval.
 
 ## Table of Contents
 
