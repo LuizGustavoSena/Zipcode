@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "cross-env NODE_ENV=test node --env-file=.env.test --import tsx src/server.ts",
+    "dev": "node --env-file=.env.dev --import tsx src/server.ts",
     "build": "tsc",
     "test": "vitest"
   },
