@@ -7,22 +7,22 @@ import { makeRemoteZipcode } from "../factories/use-cases/remote-zipcode";
 const remoteZipcode = makeRemoteZipcode();
 
 const validationCreateZipcode = z.object({
-    zipcode: z.string(),
+    code: z.string(),
     name: z.string()
 });
 
 export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
-    const { zipcode, name } = req.body as { zipcode: string; name: string };
+    const { code, name } = req.body as { code: string; name: string };
 
     try {
         validationCreateZipcode.parse({
-            zipcode,
+            code,
             name
         });
 
         await remoteZipcode.insertZipcode({
             email: req.user.email,
-            zipcode,
+            code,
             name
         });
 
@@ -37,12 +37,12 @@ export const createZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
 };
 
 export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
-    const { zipcode } = req.params as { zipcode: string };
+    const { code } = req.params as { code: string };
 
     try {
         await remoteZipcode.deleteZipcode({
             email: req.user.email,
-            zipcode
+            code
         });
 
         rep.statusCode = 200;
@@ -62,7 +62,6 @@ export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
 }
 
 export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
-    console.log('email do jogador', req.user.email)
     try {
         const zipcodes = await remoteZipcode.getZipcode({
             email: req.user.email,

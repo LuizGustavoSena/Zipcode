@@ -1,4 +1,4 @@
 export type ModelDeleteZipcode = {
     email: string;
-    zipcode: string;
+    code: string;
 }

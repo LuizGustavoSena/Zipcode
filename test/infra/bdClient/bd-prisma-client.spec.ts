@@ -1,22 +1,22 @@
 import { describe, expect, it, vi } from "vitest";
-import { BdPrismaClient } from "../../../src/infra/bdClient/bd-prisma-client";
+import { KnexBdClient } from "../../../src/infra/bdClient/bd-knex-client";
 import { makeRequestCreateZipcode } from "../../data/mocks/insert-zipcode";
 
 vi.mock('../helpers/prisma.ts');
 
 type Props = {
-    sut: BdPrismaClient
+    sut: KnexBdClient
 };
 
 const makeSut = (): Props => {
-    const sut = new BdPrismaClient();
+    const sut = new KnexBdClient();
 
     return {
         sut
     }
 };
 
-describe('BbPrismaClient', () => {
+describe('KnexBdClient', () => {
     it('Should create first zipcode', async () => {
         const { sut } = makeSut();
 

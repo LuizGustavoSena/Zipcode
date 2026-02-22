@@ -4,6 +4,8 @@
     "strictPropertyInitialization": false,
     "target": "es2020",
     "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./",
     "allowJs": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,8 +14,5 @@
     "types": [
       "vitest/globals"
     ]
-  },
-  "include": [
-    "src"
-  ]
+  }
 }

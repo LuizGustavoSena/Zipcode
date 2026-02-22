@@ -1,5 +1,7 @@
 export type RequestInsertZipcode = {
     email: string;
-    zipcode: string;
+    code: string;
     name: string;
 }
+
+export type Zipcode = { id: string } & RequestInsertZipcode;

@@ -1,9 +1,9 @@
-require('dotenv/config');
 import { z } from "zod";
 import { InvalidEnvError } from "../../domain/error/invalid-env-error";
 
 const schema = z.object({
     BASE_URL: z.string(),
+    DATABASE_URL: z.string(),
     URL_WEB_SITE: z.string(),
     URL_API_ZIPCODE: z.string(),
     AUTH_URL: z.string(),

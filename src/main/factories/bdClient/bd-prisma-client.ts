@@ -1,4 +1,4 @@
 import { BdClient } from "../../../data/protocols/bd";
-import { BdPrismaClient } from "../../../infra/bdClient/bd-prisma-client";
+import { KnexBdClient } from "../../../infra/bdClient/bd-knex-client";
 
-export const makeBdPrimaClient = (): BdClient => new BdPrismaClient();
+export const makeBdKnexClient = (): BdClient => new KnexBdClient();

@@ -19,5 +19,5 @@ export type GetzipcodesParsms = {
     id: string;
     email: string;
     name: string;
-    zipcode: string;
+    code: string;
 }
