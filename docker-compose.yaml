@@ -1,13 +1,18 @@
-version: '3.1'
+version: "3.9"
+
 services:
-  mongo:
-    build: ./mongodb_rs
+  postgres:
+    image: postgres:16
+    container_name: postgres_zipcode_api
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: 123
-      MONGO_INITDB_DATABASE: users
-      MONGO_REPLICA_HOST: localhost
-      MONGO_REPLICA_PORT: 27017
+      POSTGRES_USER: {{POSTGRES_USER}}
+      POSTGRES_PASSWORD: {{POSTGRES_PASSWORD}}
+      POSTGRES_DB: {{POSTGRES_DB}}
     ports:
-      - '27017:27017'
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
