@@ -1,5 +1,4 @@
 import moment from "moment";
-import { DeleteZipcodeError } from "../../domain/error/delete-zipcode-error";
 import { ErrorGetTracking } from "../../domain/error/error-get-tracking";
 import { RequestGetZipcode, RequestInsertZipcode, ZipcodesParams } from "../../domain/models";
 import { ModelDeleteZipcode } from "../../domain/models/delete-zipcode";
@@ -26,10 +25,7 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
     };
 
     deleteZipcode = async (params: ModelDeleteZipcode): Promise<void> => {
-        const response = await this.bdClient.deleteZipcode(params);
-
-        if (response === null)
-            throw new DeleteZipcodeError();
+        await this.bdClient.deleteZipcode(params);
     };
 
     getZipcode = async (params: RequestGetZipcode): Promise<ZipcodesParams[]> => {

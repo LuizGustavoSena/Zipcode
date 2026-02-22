@@ -5,6 +5,7 @@ import { NotAllowedError } from './domain/error/not-allowed-error';
 import { env } from './infra/zod/env';
 import * as ZipcodeControler from './main/controllers/remote-zipcode';
 import { authPlugin } from './main/plugins/auth';
+import errorHandlerPlugin from "./main/plugins/error-handler";
 
 const fastify = Fastify({
     logger: true
@@ -22,6 +23,7 @@ fastify.register(cors, {
 });
 
 fastify.register(authPlugin);
+fastify.register(errorHandlerPlugin);
 
 fastify.register(async (protectedRoutes) => {
     protectedRoutes.addHook("preHandler", protectedRoutes.authenticate);
