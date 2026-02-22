@@ -16,18 +16,18 @@ export class RemoteZipcode implements InsertZipcode, GetZipcode, DeleteZipcode {
         private httpClient: HttpClient
     ) { }
 
-    async insertZipcode(params: RequestInsertZipcode): Promise<void> {
+    insertZipcode = async (params: RequestInsertZipcode): Promise<void> => {
         this.bdClient.createZipcode(params);
     };
 
-    async deleteZipcode(params: ModelDeleteZipcode): Promise<void> {
+    deleteZipcode = async (params: ModelDeleteZipcode): Promise<void> => {
         const response = await this.bdClient.deleteZipcode(params);
 
         if (response === null)
             throw new DeleteZipcodeError();
     };
 
-    async getZipcode(params: RequestGetZipcode): Promise<ZipcodesParams[]> {
+    getZipcode = async (params: RequestGetZipcode): Promise<ZipcodesParams[]> => {
         const zipCodes = await this.bdClient.getZipcode(params);
 
         if (!zipCodes)

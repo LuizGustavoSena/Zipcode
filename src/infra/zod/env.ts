@@ -4,9 +4,9 @@ import { InvalidEnvError } from "../../domain/error/invalid-env-error";
 
 const schema = z.object({
     BASE_URL: z.string(),
-    URL_WEB_SITE: z.string().default('www.website.com'),
-    URL_API_ZIPCODE: z.string().default('www.zipcode.com'),
-    AUTH_URL: z.string().default('www.auth.com'),
+    URL_WEB_SITE: z.string(),
+    URL_API_ZIPCODE: z.string(),
+    AUTH_URL: z.string(),
     XRAPIDAPIHOST: z.string(),
     XRAPIDAPIKEY: z.string(),
     NODE_ENV: z.enum(['dev', 'test', 'prd']),

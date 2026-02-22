@@ -10,7 +10,7 @@ export class BdPrismaClient implements BdClient {
         this.prisma = new PrismaClient();
     };
 
-    async createZipcode(params: RequestInsertZipcode): Promise<void> {
+    createZipcode = async (params: RequestInsertZipcode): Promise<void> => {
         await this.prisma.zipcodes.create({
             data: {
                 email: params.email,
@@ -20,7 +20,7 @@ export class BdPrismaClient implements BdClient {
         });
     }
 
-    async deleteZipcode(params: ModelDeleteZipcode): Promise<void> {
+    deleteZipcode = async (params: ModelDeleteZipcode): Promise<void> => {
         const { email, zipcode } = params;
 
         const response = await this.prisma.zipcodes.findFirst({
@@ -42,7 +42,7 @@ export class BdPrismaClient implements BdClient {
         });
     }
 
-    async getZipcode(params: RequestGetZipcode): Promise<GetzipcodesParsms[]> {
+    getZipcode = async (params: RequestGetZipcode): Promise<GetzipcodesParsms[]> => {
         const zipcodes = await this.prisma.zipcodes.findMany({
             where: { email: params.email }
         });

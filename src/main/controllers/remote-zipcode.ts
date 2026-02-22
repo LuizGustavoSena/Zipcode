@@ -1,4 +1,3 @@
-require('dotenv/config');
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError, z } from "zod";
 import { DeleteZipcodeError } from "../../domain/error/delete-zipcode-error";
@@ -63,6 +62,7 @@ export const deleteZipcode = async (req: FastifyRequest, rep: FastifyReply) => {
 }
 
 export const getZipcodes = async (req: FastifyRequest, rep: FastifyReply) => {
+    console.log('email do jogador', req.user.email)
     try {
         const zipcodes = await remoteZipcode.getZipcode({
             email: req.user.email,

@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { HttpClient, HttpRequest, HttpResponse } from "../../data/protocols/http";
 
 export class AxiosHttpClient implements HttpClient {
-    async request(params: HttpRequest): Promise<HttpResponse<any>> {
+    request = async (params: HttpRequest): Promise<HttpResponse<any>> => {
         const { method, url, body, headers } = params;
         let response: AxiosResponse;
 

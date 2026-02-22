@@ -35,13 +35,12 @@ export const authPlugin: FastifyPluginAsync = async (fastify) => {
                 },
             });
 
-            if (!res?.body?.id || !res?.body?.email) {
+            if (!res?.body?.email) {
                 fastify.log.warn({ res }, "Auth API returned unexpected payload");
                 throw new AuthenticatorError();
             }
 
             request.user = {
-                id: String(res.body.id),
                 email: String(res.body.email),
             };
         } catch (err: any) {
